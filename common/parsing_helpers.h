@@ -27,6 +27,8 @@
 #include <linux/ip.h>
 #include <linux/udp.h>
 #include <linux/tcp.h>
+#include <linux/in.h>
+
 
 /* Header cursor to keep track of current parsing position */
 struct hdr_cursor {
@@ -37,7 +39,7 @@ struct hdr_cursor {
 
 static __always_inline __u32 parse_ethhdr(struct hdr_cursor *nh,
                                           void *data_end, struct ethhdr **ethhdr) {
-  struct ethhdr *ethh = nh->pos;
+  struct ethhdr *ethh = (struct ethhdr*)nh->pos;
   int hdrsize = sizeof(*ethh);
 
   if (nh->pos + hdrsize > data_end)
@@ -53,7 +55,7 @@ static __always_inline int parse_iphdr(struct hdr_cursor *nh,
 				       void *data_end,
 				       struct iphdr **iphdr)
 {
-	struct iphdr *iph = nh->pos;
+	struct iphdr *iph = (struct iphdr*)nh->pos;
 	int hdrsize;
 
 	if (iph + 1 > data_end)
@@ -82,8 +84,9 @@ static __always_inline int parse_udphdr(struct hdr_cursor *nh,
 					void *data_end,
 					struct udphdr **udphdr)
 {
+	struct udphdr *h = (struct udphdr*)nh->pos;
 	int len;
-	struct udphdr *h = nh->pos;
+
 
 	if (h + 1 > data_end)
 		return -1;
@@ -106,7 +109,7 @@ static __always_inline int parse_tcphdr(struct hdr_cursor *nh,
 					struct tcphdr **tcphdr)
 {
 	int len;
-	struct tcphdr *h = nh->pos;
+	struct tcphdr *h = (struct tcphdr*)nh->pos;
 
 	if (h + 1 > data_end)
 		return -1;
