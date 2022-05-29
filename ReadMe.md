@@ -8,15 +8,13 @@ The Makefiles in this repo will try to detect if you are missing some dependenci
 
 
 ## Packages on Ubuntu
----
 On Debian and Ubuntu installations, install the dependencies like this:
 
 ```console
 $ sudo apt install clang llvm libelf-dev libpcap-dev gcc-multilib build-essential libbpf-dev
 ```
 ## Kernel headers dependency
----
-The Linux kernel provides a number of header files, which are usually installed in /usr/include/linux. The different Linux distributions usually provide a software package with these headers.
+The Linux kernel provides a number of header files, which are usually i$ sudo apt install linux-headers-$(uname -r)tributions usually provide a software package with these headers.
 
 Some of the header files (we depend on) are located in the kernel tree under `include/uapi/linux/` (e.g. `include/uapi/linux/bpf.h`), but you should not include those files as they go through a conversion process when exported/installed into distros’ `/usr/include/linux` directory. In the kernel git tree you can run the command: make headers_install which will create a lot of headers files in directory “`usr/`”.
 
@@ -28,7 +26,6 @@ $ sudo apt install linux-headers-$(uname -r)
 ```
 
 ## Recommended tools
----
 The bpftool is the recommended tool for inspecting BPF programs running on your system. It also offers simple manipulation of eBPF programs and maps. In our tutorials, we will be loading our programs using bpftool. The bpftool is part of the Linux kernel tree under `tools/bpf/bpftool/`, but some Linux distributions also ship the tool as a software package. For installing `bpftool` on Ubuntu use the following command:
 ```console
 $ sudo apt install linux-tools-common linux-tools-generic
