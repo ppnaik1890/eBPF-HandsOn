@@ -22,11 +22,15 @@ USER_OBJ := ${USER_C:.c=.o}
 # Expect this is defined by including Makefile, but define if not
 COMMON_DIR ?= ../common/
 
+# Extend if including Makefile already added some
+COMMON_OBJS += $(COMMON_DIR)/common_params.o $(COMMON_DIR)/common_user_bpf_xdp.o
+
+# Create expansions for dependencies
+COMMON_H := ${COMMON_OBJS:.o=.h}
+
 # CFLAGS ?= -I$(LIBBPF_DIR)/build/usr/include/ -g
 # CFLAGS += -I../headers/
 # LDFLAGS ?= -L$(LIBBPF_DIR)
-
-# BPF_CFLAGS ?= -I$(LIBBPF_DIR)/build/usr/include/ -I../headers/
 
 LIBS = -lbpf -lelf $(USER_LIBS)
 
