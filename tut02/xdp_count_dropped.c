@@ -25,7 +25,7 @@ struct bpf_map_def SEC("maps") xdp_stats_map = {
 };
 
 
-SEC("xdp_count_packets")
+SEC("xdp_count_dropped")
 int xdp_parser_func(struct xdp_md *ctx) {
 	void *data_end = (void *)(long)ctx->data_end;
 	void *data = (void *)(long)ctx->data;
@@ -74,4 +74,8 @@ int xdp_parser_func(struct xdp_md *ctx) {
 	return XDP_PASS;
 }
 
+SEC("xdp_pass")
+int xdp_pass(struct xdp_md *ctx) {
+	return XDP_PASS;
+}
 char _license[] SEC("license") = "GPL";
