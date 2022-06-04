@@ -5,8 +5,8 @@
 #include "../common/parsing_helpers.h"
 
 
-SEC("xdp_port_block")
-int xdp_parser_func(struct xdp_md *ctx) {
+SEC("xdp_ssh_block")
+int xdp_func(struct xdp_md *ctx) {
 	void *data_end = (void *)(long)ctx->data_end;
 	void *data = (void *)(long)ctx->data;
 
