@@ -65,7 +65,7 @@ int xdp_parser_func(struct xdp_md *ctx) {
 
 	if (parse_tcphdr(&nh, data_end, &tcph) > 0) {
 		/* Block Port 22 for ssh */
-		if (tcph->dest == 22) {
+		if (bpf_ntohs(tcph->dest) == 22) {
 			lock_xadd(&rec->dropped, 1);
 			return XDP_DROP;
 		}
