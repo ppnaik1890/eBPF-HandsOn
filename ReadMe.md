@@ -1,5 +1,4 @@
 # VM with pre-installed packages
-curl http://charles_02.cse.iitb.ac.in/ubuntu22.04.qcow2 --output ubuntu22.04
 You can download a Qemu VM disk image and can host it on your machine for the sake of this tutorial. This VM is pre-insalled with all the dependencies and the repo is already present in the home directory. You can download the image using the following command, but only on **IIT Bombay Internal Network**:
 ```bash
 $ curl http://charles_02.cse.iitb.ac.in/ubuntu22.04.qcow2 --output ubuntu22.04
