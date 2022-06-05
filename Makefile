@@ -1,4 +1,4 @@
-LESSONS = $(wildcard tut*)
+LESSONS = $(wildcard tut*) $(wildcard common*)
 
 LESSONS_CLEAN = $(addsuffix _clean,$(LESSONS))
 
