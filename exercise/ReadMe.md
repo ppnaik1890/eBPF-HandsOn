@@ -1,3 +1,21 @@
+# Exercise
+
+Problem statement:
+Using an XDP program tell all the TCP ports on our system that other systems iteracted with over a particluar interface.
+Basically, the task is to look at all the TCP packets and store all the destination port numbers from into a map.
+
+
+The userspace program that will ooad the XDP program and print all the port numbers from the map is already provided.
+
+You will have to just write the XDP program. (`xdp_snoop_port.c`)
+
+
+To load the XDP program into the kernel using `xdp_load_and_print_port`, the following command has to be used:
+
+```bash
+$ sudo ./xdp_load_and_print_port --dev <interface>
+```
+
 # Debugging in XDP
 While you are at writing the XDP program in exercise section, you might feel the need to print debug statements from your XDP program. Unlike userspace programs you cannot simply use any standard printing functions from the C Library. Instead the kernel provides you a function to print messages into tracefs buffer straight from your BPF program.
 
