@@ -35,7 +35,7 @@ bpf_trace_printk(fmt, sizeof(fmt), port);
 It's first argument, `fmt`, is a pointer to a printf-compatible format string. `fmt_size` is the size of that string, including terminating \0. The varargs are arguments referenced from format string.
 
 ## Tracefs pipe reader
-To retrieve the message printed by `bpf_trace_printk()`, you can either read tracefs buffer directly:
+To retrieve the message printed by `bpf_trace_printk()`, you can read tracefs buffer directly using the following command:
 ```bash
 $ sudo cat /sys/kernel/debug/tracing/trace_pipe
 ```
