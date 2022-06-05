@@ -6,7 +6,7 @@
 
 
 SEC("xdp_ssh_block")
-int xdp_func(struct xdp_md *ctx) {
+int xdp_ssh_block_func(struct xdp_md *ctx) {
 	void *data_end = (void *)(long)ctx->data_end;
 	void *data = (void *)(long)ctx->data;
 
