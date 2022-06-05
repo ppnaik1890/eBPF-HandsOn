@@ -30,15 +30,6 @@ static char map_name[] = "xdp_stats_map";
 static char prog_filename[] = "xdp_count_dropped.o";
 
 
-static int init_map_fd(struct bpf_object *obj) {
-	map_fd = bpf_object__find_map_fd_by_name(obj,map_name);
-    if(map_fd < 0) {
-        printf("Failed to find map %s\n",map_name);
-        return -ENOENT;
-    }
-	return 0;
-}
-
 static void int_exit(int sig) {
 	xdp_link_detach(ifindex, xdp_flags, prog_id);
 	exit(EXIT_SUCCESS);
@@ -75,10 +66,10 @@ int main(int argc, char *argv[]) {
 		exit(EXIT_FAILURE);
 	}
     
-    err = init_map_fd(obj);
-	if (err < 0) {
+    map_fd = init_map_fd(obj, map_name);
+	if (map_fd < 0) {
 		fprintf(stderr, "bpf_object__find_map_fd_by_name failed on %s: %s\n",
-                map_name, strerror(-err));
+                map_name, strerror(-map_fd));
 		exit(EXIT_FAILURE);
 	}
 
@@ -101,7 +92,7 @@ int main(int argc, char *argv[]) {
 		fprintf(stderr, "link set xdp fd failed\n");
 		exit(EXIT_FAILURE);
 	}
-	
+
 	err = bpf_obj_get_info_by_fd(prog_fd, &info, &info_len);
 	if (err) {
 		fprintf(stderr,"can't get prog info - %s\n", strerror(errno));
