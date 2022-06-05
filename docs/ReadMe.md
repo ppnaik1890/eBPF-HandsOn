@@ -8,7 +8,7 @@ XDP supports three operation modes which `iproute2` implements as well: `xdpdrv`
 - `xdpoffload` mode is implemented by SmartNICs such as those supported by Netronome’s nfp driver and allow for offloading the entire BPF/XDP program into hardware. This provides even higher performance than running in native XDP although not all BPF map types or BPF helper functions are available for use compared to native XDP. The BPF verifier will reject the program in such case and report to the user what is unsupported.
 
 
-## Load XDP program using iproute2
+# Load XDP program using iproute2
 This document shows you how to attach the bpf program to a network device(network interface) using `ip` utility. 
 
 We will be using the `ip` utility to load and unload XDP programs, which is a part of the `iproute2` package.
@@ -25,13 +25,15 @@ By default, ip will throw an error in case a XDP program is already attached to 
 ```bash
 $ ip -force link set dev <interface> xdp obj <object-file> sec <section-name>
 ```
+When a command like `ip link set dev em1 xdp obj [...]` is used, then the kernel will attempt to load the program first as native XDP, and in case the driver does not support native XDP, it will automatically fall back to generic XDP. Thus, for example, using explicitly `xdpdrv` instead of `xdp`, the kernel will only attempt to load the program as native XDP and fail in case the driver does not support it, which provides a guarantee that generic XDP is avoided altogether.
 
-Alternatively, you can remove the existing XDP program from the interface, the following command must be issued:
+## Unloading of XDP BPF object files.
+You can remove the existing XDP program from the interface, the following command must be issued:
 ```bash
 $ ip link set dev <interface> xdp off
 ```
 
-When a command like `ip link set dev em1 xdp obj [...]` is used, then the kernel will attempt to load the program first as native XDP, and in case the driver does not support native XDP, it will automatically fall back to generic XDP. Thus, for example, using explicitly `xdpdrv` instead of `xdp`, the kernel will only attempt to load the program as native XDP and fail in case the driver does not support it, which provides a guarantee that generic XDP is avoided altogether.
+
 
 
 ## Reference
