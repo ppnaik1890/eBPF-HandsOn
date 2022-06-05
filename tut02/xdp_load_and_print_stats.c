@@ -7,18 +7,11 @@
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
-#include <argp.h>
 
+#include "../common/common_defines.h"
 #include "../common/common_user_bpf_xdp.h"
-
-static char doc[] = "Program to load and print stats captured by XDP program";
-// static char args_doc[] = "ARG1";
-static struct argp_option options[] = {
-    {"dev", 128, "DEVICE", 0, "Network device to attach the XDP program to", 0},
-    {0}
-};
+#include "../common/common_params.h"
 
 static int ifindex = -1;
 static char ifname[IFNAMSIZ + 1];
@@ -37,42 +30,6 @@ static char map_name[] = "xdp_stats_map";
 static char prog_filename[] = "xdp_count_dropped.o";
 
 
-struct arguments_tut02{
-	char *device;
-};
-
-
-static error_t parse_opt(int key, char *arg, struct argp_state *state){
-    struct arguments_tut02 *arguments = (struct arguments_tut02 *)state->input;
-    switch(key){
-        case 128:
-            arguments->device = arg;
-            break;
-
-        case ARGP_KEY_ARG:
-            // Too many arguments, if your program expects only one argument.
-            if(state->arg_num > 1)
-                argp_usage(state);
-			printf("Here1");
-            break;
-
-        case ARGP_KEY_END:
-            // Not enough arguments. if your program expects exactly one argument.
-            if(state->arg_num != 1)
-                argp_usage(state);
-			printf("Here2");
-            break;
-
-        default:
-			printf("Here3");
-            return ARGP_ERR_UNKNOWN;
-    }
-
-    return 0;
-}
-
-static struct argp argp = {options, parse_opt, 0, doc};
-
 static int init_map_fd(struct bpf_object *obj) {
 	map_fd = bpf_object__find_map_fd_by_name(obj,map_name);
     if(map_fd < 0) {
@@ -89,13 +46,11 @@ static void int_exit(int sig) {
 
 
 int main(int argc, char *argv[]) {
-	struct arguments_tut02 arguments;
-	arguments.device = "eth0";
-	argp_parse(&argp, argc, argv, 0, 0, &arguments);
 	
-	int err = 0, prog_fd;
+	struct arguments args = {};
+	parse_cmdline_args(argc, argv, &args);
 
-	printf("Received device is %s\n", arguments.device);
+	int err = 0, prog_fd;
 
 	struct bpf_prog_load_attr prog_load_attr = {
 		.prog_type = BPF_PROG_TYPE_XDP,
@@ -103,7 +58,6 @@ int main(int argc, char *argv[]) {
 	};
 
 	struct bpf_prog_info info = {};
-	// struct bpf_program *prog;
 	struct bpf_object *obj;
 
 	unsigned int info_len = sizeof(info);
@@ -132,7 +86,8 @@ int main(int argc, char *argv[]) {
 	signal(SIGINT, int_exit);
 	signal(SIGTERM, int_exit);
 
-	strncpy(ifname, "ens33", IFNAMSIZ);
+	/* Get a reference to the network device */
+	strncpy(ifname, args.device, IFNAMSIZ);
 	ifindex = if_nametoindex(ifname);
 	if (ifindex == 0) {
 		fprintf(stderr,
@@ -141,16 +96,20 @@ int main(int argc, char *argv[]) {
 		exit(EXIT_FAILURE);
 	}
 
+	/* Attach XDP program to device */
 	if (xdp_link_attach(ifindex,  xdp_flags, prog_fd) < 0) {
 		fprintf(stderr, "link set xdp fd failed\n");
 		exit(EXIT_FAILURE);
 	}
-
+	
 	err = bpf_obj_get_info_by_fd(prog_fd, &info, &info_len);
 	if (err) {
 		fprintf(stderr,"can't get prog info - %s\n", strerror(errno));
+		xdp_link_detach(ifindex, xdp_flags, prog_id);
 		exit(EXIT_FAILURE);
 	}
+
+	/* Save the program ID for future use whiule detaching XDP program*/
 	prog_id = info.id;
 
 	struct datarec{
@@ -163,6 +122,7 @@ int main(int argc, char *argv[]) {
 		err = bpf_map_lookup_elem(map_fd, &key, &rec);
 		if(err){
 			fprintf(stderr,"bpf_map_lookup_elem failed - %s\n", strerror(errno));
+			xdp_link_detach(ifindex, xdp_flags, prog_id);
 			exit(EXIT_FAILURE);
 		}
 		fprintf(stdout,"rx_packets:%u, dropped:%u\n",rec.rx_packets,rec.dropped);
