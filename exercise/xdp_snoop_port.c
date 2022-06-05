@@ -19,11 +19,11 @@ struct bpf_map_def SEC("maps") xdp_port_map = {
 
 SEC("xdp_snoop_ip")
 int xdp_snoop_ip_func(struct xdp_md *ctx) {
-	void *data_end = (void *)(long)ctx->data_end;
-	void *data = (void *)(long)ctx->data;
+	// void *data_end = (void *)(long)ctx->data_end;
+	// void *data = (void *)(long)ctx->data;
 
 	/* These keep track of the next header type and iterator pointer */
-	struct hdr_cursor nh;
+	// struct hdr_cursor nh;
 	
     /* Start your code here */
 	
