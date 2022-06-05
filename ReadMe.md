@@ -1,6 +1,6 @@
-# Setup dependencies
+# Manual installation of dependencies
 
-Before you can start completing the steps in this XDP-tutorial, go $ sudo apt install linux-headers-$(uname -r)though this document and install the needed software packages.
+Before you can start completing the steps in this XDP-tutorial, go though this document and install the needed software packages.
 
 The main dependencies are `libbpf`, `llvm`, `clang` and `libelf`. LLVM+clang compiles our restricted-C programs into BPF-byte-code, which is stored in an ELF object file (`libelf`), that is loaded by `libbpf` into the kernel via the bpf syscall. Some of the lessons also use the perf utility to track the kernel behaviour through tracepoints.
 
