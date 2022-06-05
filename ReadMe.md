@@ -3,6 +3,7 @@ You can download a Qemu VM disk image and can host it on your machine for the sa
 ```bash
 $ curl http://charles_02.cse.iitb.ac.in/ubuntu22.04.qcow2 --output ubuntu22.04.qcow2
 ```
+**NOTE**: Since, this a disk image the size of this file is 20GB.
 
 # Manual installation of dependencies
 
