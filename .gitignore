@@ -56,3 +56,4 @@ dkms.conf
 # Userspace programs
 xdp_loader
 xdp_load_and_print_stats
+xdp_load_and_print_port
