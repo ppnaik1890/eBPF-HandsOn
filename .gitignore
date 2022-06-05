@@ -54,3 +54,5 @@ Mkfile.old
 dkms.conf
 
 # Userspace programs
+xdp_loader
+xdp_load_and_print_stats
