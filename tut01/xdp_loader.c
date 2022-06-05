@@ -7,18 +7,13 @@
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+// #include <string.h>
 #include <unistd.h>
-#include <argp.h>
 
+#include "../common/common_defines.h"
 #include "../common/common_user_bpf_xdp.h"
+#include "../common/common_params.h"
 
-static char doc[] = "Program to load and print stats captured by XDP program";
-// static char args_doc[] = "ARG1";
-static struct argp_option options[] = {
-    {"dev", 128, "DEVICE", 0, "Network device to attach the XDP program to", 0},
-    {0}
-};
 
 static int ifindex = -1;
 static char ifname[IFNAMSIZ + 1];
@@ -29,36 +24,6 @@ static int xdp_flags = XDP_FLAGS_UPDATE_IF_NOEXIST | XDP_FLAGS_SKB_MODE;
 * Object file that conatins our BPF program.
 */
 static char prog_filename[] = "xdp_port_block.o";
-struct arguments{
-	char *device;
-};
-
-static error_t parse_opt(int key, char *arg, struct argp_state *state){
-
-    struct arguments *arguments = state->input;
-    switch(key){
-        case 128:
-            arguments->device = arg;
-            break;
-
-        case ARGP_KEY_ARG:
-            // Too many arguments, if your program expects only one argument.
-            if(state->arg_num > 1)
-                argp_usage(state);
-            break;
-
-        case ARGP_KEY_END:
-            // Not enough arguments. if your program expects exactly one argument.
-            if(state->arg_num != 1)
-                argp_usage(state);
-            break;
-
-        default:
-            return ARGP_ERR_UNKNOWN;
-    }
-
-    return 0;
-}
 
 
 static void int_exit(int sig) {
@@ -66,17 +31,13 @@ static void int_exit(int sig) {
 	exit(EXIT_SUCCESS);
 }
 
-static struct argp argp = {options, parse_opt, 0, doc};
 
 int main(int argc, char *argv[]) {
 	
-	struct arguments arguments;
-	arguments.device = "eth0";
-	argp_parse(&argp, argc, argv, 0, 0, &arguments);
+	struct arguments args = {};
+	parse_cmdline_args(argc, argv, &args);
 	
 	int err = 0, prog_fd;
-
-	printf("Received device is %s\n", arguments.device);
 
 	struct bpf_prog_load_attr prog_load_attr = {
 		.prog_type = BPF_PROG_TYPE_XDP,
