@@ -21,18 +21,23 @@ int xdp_ssh_block_func(struct xdp_md *ctx) {
 	/* Start next header cursor position at data start */
 	nh.pos = data;
 
+	/* Parse Ethernet header */
 	nh_type = parse_ethhdr(&nh, data_end, &ethh);
-
+	
+	/* If the packet is not IP, pass it */
 	if (bpf_ntohs(nh_type) != ETH_P_IP) {
 		return XDP_PASS;
 	}
 
+	/* Parse IP header */
 	ip_type = parse_iphdr(&nh, data_end, &iph);
 
+	/* We only care about TCP packets */
 	if (ip_type != IPPROTO_TCP) {
 		return XDP_PASS;
 	}
 
+	/* Parse TCP header */
 	if (parse_tcphdr(&nh, data_end, &tcph) > 0) {
 		/* Block Port 22 for ssh */
 		if (bpf_ntohs(tcph->dest) == 22) {

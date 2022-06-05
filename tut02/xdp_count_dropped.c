@@ -40,37 +40,43 @@ int xdp_count_dropped_pkts_func(struct xdp_md *ctx) {
 
 	__u32 nh_type, ip_type, key=0;
 
+	/* Start next header cursor position at data start */
+	nh.pos = data;
+
+	/* Ge a reference to our data record and lookup its value into the map */
 	struct datarec *rec;
 	rec = bpf_map_lookup_elem(&xdp_stats_map, &key);
 	if (!rec)
 		return XDP_ABORTED;
 
+	/* Increment the number of packets received by 1*/
 	lock_xadd(&rec->rx_packets, 1);
 
-
-	/* Start next header cursor position at data start */
-	nh.pos = data;
-
+	/* Parse Ethernet header */
 	nh_type = parse_ethhdr(&nh, data_end, &ethh);
 
+	/* If the packet is not IP, pass it */
 	if (bpf_ntohs(nh_type) != ETH_P_IP) {
 		return XDP_PASS;
 	}
 
+	/* Parse the IP packet*/
 	ip_type = parse_iphdr(&nh, data_end, &iph);
 
+	/* We only care about TCP packets */
 	if (ip_type != IPPROTO_TCP) {
 		return XDP_PASS;
 	}
 
+	/* Parse the TCP packet */
 	if (parse_tcphdr(&nh, data_end, &tcph) > 0) {
 		/* Block Port 22 for ssh */
 		if (bpf_ntohs(tcph->dest) == 22) {
+			/* Increment the number of dropped packets by 1 */
 			lock_xadd(&rec->dropped, 1);
 			return XDP_DROP;
 		}
 	}
-
 	return XDP_PASS;
 }
 
