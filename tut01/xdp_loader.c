@@ -67,7 +67,7 @@ int main(int argc, char *argv[]) {
 	signal(SIGINT, int_exit);
 	signal(SIGTERM, int_exit);
 
-	strncpy(ifname, "ens33", IFNAMSIZ);
+	strncpy(ifname, args.device, IFNAMSIZ);
 	ifindex = if_nametoindex(ifname);
 	if (ifindex == 0) {
 		fprintf(stderr,
