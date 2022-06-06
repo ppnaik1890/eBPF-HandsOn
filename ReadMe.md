@@ -27,9 +27,6 @@ Some of the header files (we depend on) are located in the kernel tree under `in
 
 For now, this tutorial depends on kernel headers package provided by your distro.
 
-
-For now, this tutorial depends on kernel headers package provided by your distro.
-
 ```console
 $ sudo apt install linux-headers-$(uname -r)
 ```
